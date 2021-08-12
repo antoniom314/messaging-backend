@@ -4,7 +4,9 @@ import com.gmail.antoniomarkoski314.Chat.Properties;
 import com.gmail.antoniomarkoski314.Chat.database.UserRepository;
 import com.gmail.antoniomarkoski314.Chat.security.filters.BasicAuthFilter;
 import com.gmail.antoniomarkoski314.Chat.security.filters.UsernamePasswordAuthFilter;
+import com.gmail.antoniomarkoski314.Chat.security.userdetails.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,14 +16,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
+@Configuration
 @EnableWebSecurity
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
-
-    private Pattern BCRYPT_PATTERN = Pattern .compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
 
     private UserDetailsServiceImpl userDetailsServiceImpl;
     private UserRepository userRepository;
@@ -33,7 +34,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
+        auth.authenticationProvider(authenticationProvider()).eraseCredentials(false);
         auth.userDetailsService(this.userDetailsServiceImpl)
                 .passwordEncoder(passwordEncoder());
     }
@@ -56,17 +57,24 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.addFilter(new UsernamePasswordAuthFilter(authenticationManager(), this.userDetailsServiceImpl));
+        http.addFilter(new UsernamePasswordAuthFilter(authenticationManager(), this.userDetailsServiceImpl ));
         http.addFilter(new BasicAuthFilter(authenticationManager(), this.userDetailsServiceImpl));
 
+//        http.requestMatchers().antMatchers("ws://localhost:8080/socket");
         http.authorizeRequests()
-                //.antMatchers(HttpMethod.POST, "/login").permitAll() /get-role-user
-                .antMatchers("/error").permitAll()
-                .antMatchers("/api/login").permitAll()
-                .antMatchers("/api/signup").permitAll()
-                .antMatchers("/api/get-users").permitAll()
-                .antMatchers("/api/get-role-user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .antMatchers("/api/get-role-admin").hasAuthority("ROLE_ADMIN")
+                .antMatchers(Properties.errorUrl).permitAll()
+
+//                .antMatchers("/socket").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//                .antMatchers("/socket/**").permitAll()
+//                .antMatchers("/app").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//                .antMatchers("/user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+//                .antMatchers("/queue").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .antMatchers(Properties.authenticateUrl).permitAll()
+                .antMatchers(Properties.registerUrl).permitAll()
+                .antMatchers(Properties.getUsersUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .antMatchers(Properties.getRoleUserUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .antMatchers(Properties.getRoleAdminUrl).hasAuthority("ROLE_ADMIN")
+                .antMatchers("/socket").permitAll()
                 .anyRequest().authenticated();
     }
 

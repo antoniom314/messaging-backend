@@ -2,8 +2,9 @@ package com.gmail.antoniomarkoski314.Chat.security.filters;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.gmail.antoniomarkoski314.Chat.Properties;
-import com.gmail.antoniomarkoski314.Chat.security.UserDetailsServiceImpl;
+import com.gmail.antoniomarkoski314.Chat.security.userdetails.UserDetailsServiceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,7 +48,7 @@ public class BasicAuthFilter extends BasicAuthenticationFilter {
         }
 
         // If header is present, try grab user details from database and perform authorization
-        Authentication authentication = getUsernamePasswordAuthentication(request);
+        Authentication authentication = getUserAuthentication(header);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         System.out.println("BAF doFilterInternal authentication= " + authentication);
@@ -56,26 +57,23 @@ public class BasicAuthFilter extends BasicAuthenticationFilter {
         chain.doFilter(request, response);
     }
 
-    private Authentication getUsernamePasswordAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(Properties.HEADER_STRING)
-                .replace(Properties.TOKEN_PREFIX,"");
+    private Authentication getUserAuthentication(String bearerHeader) {
+        String token = bearerHeader.replace(Properties.TOKEN_PREFIX,"");
 
         if (token != null) {
 
             System.out.println("BAF getUsernameAnd.. token = " + token.toString());
 
-            // parse the token and validate it
-            String userName = JWT.require(Algorithm.HMAC512(Properties.SECRET.getBytes()))
+            // Validate token
+            DecodedJWT decoded = JWT.require(Algorithm.HMAC512(Properties.SECRET.getBytes()))
                     .build()
-                    .verify(token)
-                    .getSubject();
+                    .verify(token);
+            // Get username from decoded token
+            String userName = decoded.getSubject();
 
-            // Search in the DB if we find the user by token subject (username)
-            // If so, then grab user details and create spring auth token using username, pass, authorities/roles
+            // Search in the DB to find the user by username
             if (userName != null) {
-
                 UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(userName);
-                //System.out.println("BAF userDetails= " + userDetails.toString());
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userName, null, userDetails.getAuthorities());
                 return auth;

@@ -3,9 +3,9 @@ package com.gmail.antoniomarkoski314.Chat.security.filters;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.gmail.antoniomarkoski314.Chat.Properties;
-import com.gmail.antoniomarkoski314.Chat.controllers.Credentials;
+import com.gmail.antoniomarkoski314.Chat.models.Credentials;
 import com.gmail.antoniomarkoski314.Chat.models.User;
-import com.gmail.antoniomarkoski314.Chat.security.UserDetailsServiceImpl;
+import com.gmail.antoniomarkoski314.Chat.security.userdetails.UserDetailsServiceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +19,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 
@@ -33,7 +32,7 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
         this.authenticationManager = authenticationManager;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
 
-        this.setFilterProcessesUrl("/api/login");
+        this.setFilterProcessesUrl(Properties.authenticateUrl);
         this.setPostOnly(false);
         System.out.println("UsernamePasswordAuthFilter");
     }
@@ -45,6 +44,8 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
         String header = request.getHeader(Properties.HEADER_STRING);
+
+        System.out.println("'Authorization' header= " + header);
 
         if (header != null && header.startsWith(Properties.BASIC_PREFIX)) {
             System.out.println("'Authorization' header= " + header);
@@ -84,8 +85,10 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
         System.out.println("AUTH userDetails.getPassword()= " + userDetails.getPassword());
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                credentials.getUsername(), credentials.getPassword(),
-                new ArrayList<>());
+                credentials.getUsername(), credentials.getPassword()
+//                new ArrayList<>()
+//                userDetails.getAuthorities()
+        );
         authenticationToken.setDetails(
                 userDetails);
 

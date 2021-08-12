@@ -1,0 +1,15 @@
+@use '../../properties';
+
+#navigation {
+  height: 2.6em;
+  background-color: properties.$navbar-color;
+}
+#login-content {
+  background-color: properties.$background-color;
+  height: 100vh;
+}
+button {
+  background-color: properties.$button-color;
+  width: 5em;
+}
+

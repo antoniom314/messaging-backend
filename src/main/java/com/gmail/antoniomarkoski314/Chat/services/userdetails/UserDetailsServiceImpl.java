@@ -1,4 +1,4 @@
-package com.gmail.antoniomarkoski314.Chat.security;
+package com.gmail.antoniomarkoski314.Chat.security.userdetails;
 
 import com.gmail.antoniomarkoski314.Chat.database.UserRepository;
 import com.gmail.antoniomarkoski314.Chat.models.User;
@@ -25,14 +25,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("username= " + username);
         }
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(username)
-                .password(user.getPassword())
-                .authorities("ROLE_USER")
-                .accountExpired(false)
-                .accountLocked(false)
-                .disabled(false)
-                .credentialsExpired(false)
-                .build();
+        return new UserDetailsImpl(user);
+//        return org.springframework.security.core.userdetails.User
+//                .withUsername(username)
+//                .password(user.getPassword())
+//                .authorities("ROLE_USER")
+//                .accountExpired(false)
+//                .accountLocked(false)
+//                .disabled(false)
+//                .credentialsExpired(false)
+//                .build();
     }
 }

@@ -1,4 +1,4 @@
-package com.gmail.antoniomarkoski314.Chat.security;
+package com.gmail.antoniomarkoski314.Chat.security.userdetails;
 
 import com.gmail.antoniomarkoski314.Chat.models.User;
 import org.springframework.security.core.GrantedAuthority;

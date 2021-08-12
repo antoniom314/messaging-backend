@@ -2,28 +2,33 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { ChatComponent } from './chat/chat.component';
-import { HttpHeaderInterseptor } from './http.header.interceptor';
-import { LoginComponent } from './login/login.component';
-import { SecurityService } from './security/security.service';
+import { routes } from './components/app.routing';
+import { AppComponent } from './components/app.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { LoginComponent } from './components/login/login.component';
+import { UsersComponent } from './components/users/users.component';
+import { SecurityService } from './services/security/security.service';
+import { UsersService } from './services/users/users.service';
+import { HttpHeaderInterseptor } from './http-header-interceptor';
+import { AccessGuard } from './access-guard';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChatComponent,
-    LoginComponent
+    LoginComponent,
+    UsersComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
+    RouterModule.forRoot(routes),
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [SecurityService,
+  providers: [UsersService, SecurityService, AccessGuard,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpHeaderInterseptor,

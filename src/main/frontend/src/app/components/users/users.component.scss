@@ -1,0 +1,10 @@
+@use '../../properties';
+#user-content {
+  background-color: properties.$background-color;
+  height: 800px;
+}
+
+#navigation {
+  height: 2.6em;
+  background-color: properties.$navbar-color;
+}
