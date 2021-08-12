@@ -1,4 +1,4 @@
-package com.gmail.antoniomarkoski314.Chat.controllers;
+package com.gmail.antoniomarkoski314.Chat.models;
 
 public class Credentials {
 

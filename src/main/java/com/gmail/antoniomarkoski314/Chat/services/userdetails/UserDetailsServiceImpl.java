@@ -1,6 +1,6 @@
-package com.gmail.antoniomarkoski314.Chat.security.userdetails;
+package com.gmail.antoniomarkoski314.Chat.services.userdetails;
 
-import com.gmail.antoniomarkoski314.Chat.database.UserRepository;
+import com.gmail.antoniomarkoski314.Chat.repositories.UserRepository;
 import com.gmail.antoniomarkoski314.Chat.models.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,14 +26,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
 
         return new UserDetailsImpl(user);
-//        return org.springframework.security.core.userdetails.User
-//                .withUsername(username)
-//                .password(user.getPassword())
-//                .authorities("ROLE_USER")
-//                .accountExpired(false)
-//                .accountLocked(false)
-//                .disabled(false)
-//                .credentialsExpired(false)
-//                .build();
     }
 }

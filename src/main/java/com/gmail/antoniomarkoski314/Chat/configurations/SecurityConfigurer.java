@@ -1,10 +1,9 @@
-package com.gmail.antoniomarkoski314.Chat.security;
+package com.gmail.antoniomarkoski314.Chat.configurations;
 
 import com.gmail.antoniomarkoski314.Chat.Properties;
-import com.gmail.antoniomarkoski314.Chat.database.UserRepository;
-import com.gmail.antoniomarkoski314.Chat.security.filters.BasicAuthFilter;
-import com.gmail.antoniomarkoski314.Chat.security.filters.UsernamePasswordAuthFilter;
-import com.gmail.antoniomarkoski314.Chat.security.userdetails.UserDetailsServiceImpl;
+import com.gmail.antoniomarkoski314.Chat.filters.BasicAuthFilter;
+import com.gmail.antoniomarkoski314.Chat.filters.UsernamePasswordAuthFilter;
+import com.gmail.antoniomarkoski314.Chat.services.userdetails.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
@@ -25,11 +23,9 @@ import java.util.List;
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     private UserDetailsServiceImpl userDetailsServiceImpl;
-    private UserRepository userRepository;
 
-    public SecurityConfigurer(UserDetailsServiceImpl userDetailsServiceImpl, UserRepository userRepository) {
+    public SecurityConfigurer(UserDetailsServiceImpl userDetailsServiceImpl) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -44,37 +40,31 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         // For H2 database console
         http.headers().frameOptions().sameOrigin();
 
+        // Configure cross origin
         http.cors().configurationSource(request -> {
             var cors = new CorsConfiguration();
             cors.setAllowCredentials(true);
             cors.setAllowedOrigins(List.of("http://localhost:4200"));
             cors.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
             cors.setAllowedHeaders(List.of("*"));
-            cors.addExposedHeader(Properties.HEADER_STRING);
+            cors.addExposedHeader(Properties.AUTHENTICATION_HEADER);
+            cors.addExposedHeader(Properties.AUTHORIZATION_HEADER);
             return cors;
         });
         // remove csrf and state in session
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
+        // Add authentication filter
         http.addFilter(new UsernamePasswordAuthFilter(authenticationManager(), this.userDetailsServiceImpl ));
+        // Add authorization filter
         http.addFilter(new BasicAuthFilter(authenticationManager(), this.userDetailsServiceImpl));
 
-//        http.requestMatchers().antMatchers("ws://localhost:8080/socket");
         http.authorizeRequests()
                 .antMatchers(Properties.errorUrl).permitAll()
-
-//                .antMatchers("/socket").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-//                .antMatchers("/socket/**").permitAll()
-//                .antMatchers("/app").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-//                .antMatchers("/user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-//                .antMatchers("/queue").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .antMatchers(Properties.authenticateUrl).permitAll()
                 .antMatchers(Properties.registerUrl).permitAll()
                 .antMatchers(Properties.getUsersUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .antMatchers(Properties.getRoleUserUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .antMatchers(Properties.getRoleAdminUrl).hasAuthority("ROLE_ADMIN")
-                .antMatchers("/socket").permitAll()
+                .antMatchers(Properties.socketUrl).permitAll()
                 .anyRequest().authenticated();
     }
 

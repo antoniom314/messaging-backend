@@ -1,11 +1,10 @@
 package com.gmail.antoniomarkoski314.Chat.controllers;
 
 import com.gmail.antoniomarkoski314.Chat.Properties;
-import com.gmail.antoniomarkoski314.Chat.database.UserRepository;
+import com.gmail.antoniomarkoski314.Chat.repositories.UserRepository;
+import com.gmail.antoniomarkoski314.Chat.models.Credentials;
 import com.gmail.antoniomarkoski314.Chat.models.User;
-import com.gmail.antoniomarkoski314.Chat.security.UserDetailsServiceImpl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 @CrossOrigin
 public class UserController {
 
@@ -28,20 +26,14 @@ public class UserController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @GetMapping("/get-users")
+    @GetMapping(Properties.getUsersUrl)
     public List<User> getUsers(@RequestHeader Map<String, String> headers) {
-
-            headers.forEach((key, value) -> {
-                System.out.println(String.format("Header '%s' = %s", key, value));
-            });
 
         return userRepository.findAll();
     }
     
-    @GetMapping("/signup")
-    public ResponseEntity register(@RequestHeader("Authorization") String header) {
-
-        System.out.println("/signup @RequestHeader");
+    @GetMapping(Properties.registerUrl)
+    public ResponseEntity register(@RequestHeader(Properties.AUTHENTICATION_HEADER) String header) {
 
         Credentials credentials = getBasicCredentials(header);
 
@@ -49,55 +41,30 @@ public class UserController {
             System.out.println("No Basic header");
             return ResponseEntity.badRequest().build();
         }
-
         // Encode password before storing to the database
         String encodedPassword = passwordEncoder.encode(credentials.getPassword());
         credentials.setPassword(encodedPassword);
-        User user = new User(credentials.getUsername(), credentials.getPassword(),"ROLE_USER","");
 
+        User user = new User(credentials.getUsername(), credentials.getPassword(),"USER","");
         // Store user to the database
         userRepository.save(user);
 
         return ResponseEntity.ok()
-                //.headers(httpHeaders)
                 .body(credentials);
     }
 
-    @GetMapping("/login")
-    public ResponseEntity authenticate(@RequestHeader("Authorization") String header) {
-
-        System.out.println("/login @RequestHeader");
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.add("MyHeader", "MyHeader");
-        return ResponseEntity.ok()
-                .body(new Credentials("user", "user"));
+    @GetMapping(Properties.authenticateUrl)
+    public ResponseEntity authenticate() {
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/get-role-user")
-    public User getRoleUser() {
-
-        User user = new User("user", "user","ROLE_USER","");
-
-        return user;
-    }
-
-    @GetMapping("/get-role-admin")
-    public User getRolrAdmin() {
-
-        User user = new User("admin", "admin","ROLE_ADMIN","");
-
-        return user;
-    }
-
-    // Get credentials from "Authorization" header
+    // Get credentials (username and password) from "Authorization" header
     private Credentials getBasicCredentials(String header) {
 
         if (header != null && header.startsWith(Properties.BASIC_PREFIX)) {
-            System.out.println(header);
-            String headerValue = header.substring(Properties.BASIC_PREFIX.length());
 
+            String headerValue = header.substring(Properties.BASIC_PREFIX.length());
             String decodedValue = new String(Base64.getDecoder().decode(headerValue));
-            System.out.println(decodedValue);
 
             String[] substringArray = decodedValue.split(":");
             if (substringArray.length > 1) {

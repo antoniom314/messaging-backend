@@ -1,5 +1,6 @@
-package com.gmail.antoniomarkoski314.Chat.database;
+package com.gmail.antoniomarkoski314.Chat.services;
 
+import com.gmail.antoniomarkoski314.Chat.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import com.gmail.antoniomarkoski314.Chat.models.User;
