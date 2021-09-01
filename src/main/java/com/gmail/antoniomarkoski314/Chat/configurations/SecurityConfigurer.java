@@ -1,8 +1,8 @@
 package com.gmail.antoniomarkoski314.Chat.configurations;
 
 import com.gmail.antoniomarkoski314.Chat.Properties;
-import com.gmail.antoniomarkoski314.Chat.filters.BasicAuthFilter;
-import com.gmail.antoniomarkoski314.Chat.filters.UsernamePasswordAuthFilter;
+import com.gmail.antoniomarkoski314.Chat.filters.AuthorizationFilter;
+import com.gmail.antoniomarkoski314.Chat.filters.AuthenticationFilter;
 import com.gmail.antoniomarkoski314.Chat.services.userdetails.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,16 +55,16 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // Add authentication filter
-        http.addFilter(new UsernamePasswordAuthFilter(authenticationManager(), this.userDetailsServiceImpl ));
+        http.addFilter(new AuthenticationFilter(authenticationManager(), this.userDetailsServiceImpl ));
         // Add authorization filter
-        http.addFilter(new BasicAuthFilter(authenticationManager(), this.userDetailsServiceImpl));
+        http.addFilter(new AuthorizationFilter(authenticationManager(), this.userDetailsServiceImpl));
 
         http.authorizeRequests()
-                .antMatchers(Properties.errorUrl).permitAll()
                 .antMatchers(Properties.authenticateUrl).permitAll()
                 .antMatchers(Properties.registerUrl).permitAll()
                 .antMatchers(Properties.getUsersUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
                 .antMatchers(Properties.socketUrl).permitAll()
+                .antMatchers(Properties.errorUrl).permitAll()
                 .anyRequest().authenticated();
     }
 

@@ -18,13 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// Authorization filter
-public class BasicAuthFilter extends BasicAuthenticationFilter {
+public class AuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    public BasicAuthFilter(AuthenticationManager authenticationManager,
-                           UserDetailsServiceImpl userDetailsServiceImpl) {
+    public AuthorizationFilter(AuthenticationManager authenticationManager,
+                               UserDetailsServiceImpl userDetailsServiceImpl) {
         super(authenticationManager);
         this.userDetailsServiceImpl = userDetailsServiceImpl;
     }

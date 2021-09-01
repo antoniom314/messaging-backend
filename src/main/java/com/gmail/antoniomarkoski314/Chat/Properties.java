@@ -3,11 +3,11 @@ package com.gmail.antoniomarkoski314.Chat;
 public class Properties {
 
     // Url
-    public static final String socketUrl = "/socket";
-    public static final String errorUrl = "/error";
     public static final String authenticateUrl = "/api/authenticate";
     public static final String registerUrl = "/api/register";
     public static final String getUsersUrl = "/api/get-users";
+    public static final String socketUrl = "/socket";
+    public static final String errorUrl = "/error";
 
     // Jwt messaging
     public static final String SECRET = "YourSecretKey";

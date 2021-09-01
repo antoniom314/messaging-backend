@@ -22,34 +22,29 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.Enumeration;
 
-// Authentication filter
-public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFilter {
+public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
     private AuthenticationManager authenticationManager;
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
-    public UsernamePasswordAuthFilter(AuthenticationManager authenticationManager,
-                                      UserDetailsServiceImpl userDetailsServiceImpl
+    public AuthenticationFilter(AuthenticationManager authenticationManager,
+                                UserDetailsServiceImpl userDetailsServiceImpl
     ) {
         this.authenticationManager = authenticationManager;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
 
         this.setFilterProcessesUrl(Properties.authenticateUrl);
         this.setPostOnly(false);
-        System.out.println("UsernamePasswordAuthFilter");
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+//        Enumeration<String> headers = request.getHeaderNames();
+//        while (headers.hasMoreElements()) {
+//            System.out.println(headers.nextElement());
+//        }
 
         String header = request.getHeader(Properties.AUTHENTICATION_HEADER);
-
-
-        Enumeration<String> headers = request.getHeaderNames();
-        while (headers.hasMoreElements()) {
-            System.out.println(headers.nextElement());
-        }
-
-        System.out.println("header= " + header);
 
         if (header != null && header.startsWith(Properties.BASIC_PREFIX)) {
 
@@ -61,10 +56,6 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
     }
 
     private Authentication getAuthentication(Credentials credentials) {
-
-
-        System.out.println("credentials");
-        System.out.println(credentials.toString());
 
         if (credentials == null) return null;
 
@@ -112,8 +103,6 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
         // Get userDetails from Authentication returned by the attemptAuthentication() method
         UserDetails userDetails = (UserDetails) authResult.getPrincipal();
 
-        System.out.println("successfulAuth() userDetails = " + userDetails.toString());
-
         // Create JWT Token with UserDetails
         String token = JWT.create()
                 .withSubject(userDetails.getUsername())
@@ -122,7 +111,5 @@ public class UsernamePasswordAuthFilter extends UsernamePasswordAuthenticationFi
 
         // Add token in response
         response.addHeader(Properties.AUTHORIZATION_HEADER, Properties.TOKEN_PREFIX +  token);
-
-        System.out.println("successfulAuth() response= " + response.getHeader(Properties.AUTHORIZATION_HEADER));
     }
 }

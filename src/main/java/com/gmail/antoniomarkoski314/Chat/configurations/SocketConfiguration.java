@@ -74,7 +74,6 @@ public class SocketConfiguration extends AbstractSecurityWebSocketMessageBrokerC
         String token = bearerToken.replace(Properties.TOKEN_PREFIX, "");
 
         if (token != null) {
-            System.out.println("SocketConfig getUserAuth token = " + token.toString());
             // Validate token
             DecodedJWT decoded = JWT.require(Algorithm.HMAC512(Properties.SECRET.getBytes()))
                     .build()
@@ -85,8 +84,6 @@ public class SocketConfiguration extends AbstractSecurityWebSocketMessageBrokerC
             // Search in the DB to find the user by username
             if (userName != null) {
                 UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(userName);
-                System.out.println(userDetails.getUsername());
-                System.out.println(userDetails.getAuthorities());
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userName, null, userDetails.getAuthorities());
                 return auth;
