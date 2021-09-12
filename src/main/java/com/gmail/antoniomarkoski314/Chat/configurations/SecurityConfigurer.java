@@ -60,6 +60,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         http.addFilter(new AuthorizationFilter(authenticationManager(), this.userDetailsServiceImpl));
 
         http.authorizeRequests()
+                .antMatchers("/actuator/**").permitAll()
                 .antMatchers(Properties.authenticateUrl).permitAll()
                 .antMatchers(Properties.registerUrl).permitAll()
                 .antMatchers(Properties.getUsersUrl).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
