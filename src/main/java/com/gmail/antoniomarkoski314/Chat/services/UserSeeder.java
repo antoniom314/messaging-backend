@@ -31,6 +31,7 @@ public class UserSeeder implements CommandLineRunner {
 
         List<User> users = Arrays.asList(user, user1, user2, admin, userBasic);
 
+        System.out.println("ERROR");
         userRepository.saveAll(users);
     }
 }

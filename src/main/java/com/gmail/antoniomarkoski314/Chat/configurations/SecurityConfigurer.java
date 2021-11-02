@@ -43,8 +43,8 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
         // Configure cross origin
         http.cors().configurationSource(request -> {
             var cors = new CorsConfiguration();
-            cors.setAllowCredentials(true);
-            cors.setAllowedOrigins(List.of("http://localhost:4200"));
+            cors.setAllowCredentials(false);
+            cors.setAllowedOrigins(List.of(Properties.allowedOriginUrl));
             cors.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
             cors.setAllowedHeaders(List.of("*"));
             cors.addExposedHeader(Properties.AUTHENTICATION_HEADER);
